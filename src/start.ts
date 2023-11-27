@@ -11,6 +11,8 @@ type Result = {
     txhash: string
     v: number
     type: number
+    from: string
+    to: string
 }
 
 type RuntimeState = {
@@ -21,7 +23,7 @@ type RuntimeState = {
 }
 
 const callEtherscan = async (startblock: number, endblock: number, page: number) => {
-    const results = await fetch(`https://api.etherscan.io/api?module=account&action=txlist&address=0xC1b634853Cb333D3aD8663715b08f41A3Aec47cc&startblock=${startblock}&endblock=${endblock}&page=${page}&offset=20&sort=asc&apikey=BMVWB33ZWUS3CJYFDPIIZERVEXZJ4Y8WH9`);
+    const results = await fetch(`https://api.etherscan.io/api?module=account&action=txlist&address=0xC1b634853Cb333D3aD8663715b08f41A3Aec47cc&startblock=${startblock}&endblock=${endblock}&page=${page}&offset=70&sort=asc&apikey={Your_Key}`);
     const s = await results.text();
     const json = JSON.parse(s);
     console.log(json.result.length);
@@ -33,7 +35,7 @@ const startSearch = async (startblock: number, endblock: number) => {
     
     if (fs.existsSync('./resumeState.json')) {
         console.log("found resume state");
-        const stateRaw = fs.readFileSync('./config/resumeState.json', 'utf-8');
+        const stateRaw = fs.readFileSync('./resumeState.json', 'utf-8');
         rs = JSON.parse(stateRaw);
     } else {
         rs = {
@@ -100,7 +102,9 @@ const processTxs = (txs: Transaction[]) => {
                 const result: Result = {
                     txhash: txs[a].hash!,
                     v: txs[a].v!,
-                    type: txs[a].type!
+                    type: txs[a].type!,
+                    from: txs[a].from!,
+                    to: txs[a].to!
                 }
                 res.push(result);
             }
@@ -109,4 +113,4 @@ const processTxs = (txs: Transaction[]) => {
     return res;
 }
 
-startSearch(18654109, 18661209);
+startSearch(18649927, 18649929);
