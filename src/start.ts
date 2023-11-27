@@ -6,7 +6,7 @@ import { decodeL2Msgs, decompressAndDecode, getAllL2Msgs, processRawData } from 
 import { Transaction } from "ethers";
 
 var fetch = require('node-fetch');
-
+let rs: RuntimeState
 type Result = {
     txhash: string
     v: number
@@ -17,6 +17,7 @@ type RuntimeState = {
     startblock: number
     endblock: number
     page: number
+    txCount: number
 }
 
 const callEtherscan = async (startblock: number, endblock: number, page: number) => {
@@ -29,7 +30,7 @@ const callEtherscan = async (startblock: number, endblock: number, page: number)
 
 
 const startSearch = async (startblock: number, endblock: number) => {
-    let rs: RuntimeState
+    
     if (fs.existsSync('./resumeState.json')) {
         console.log("found resume state");
         const stateRaw = fs.readFileSync('./config/resumeState.json', 'utf-8');
@@ -38,7 +39,8 @@ const startSearch = async (startblock: number, endblock: number) => {
         rs = {
             startblock: startblock,
             endblock: endblock,
-            page: 1
+            page: 1,
+            txCount: 0
         }
     }
     const res: Result[] = []
@@ -91,6 +93,7 @@ const processResults = (results: any): Result[] => {
 const processTxs = (txs: Transaction[]) => {
     const res: Result[] = [];
     for(let a = 0; a < txs.length; a++) {
+        rs.txCount++
         const v = txs[a].v || 0;
         if(!txs[a].type || txs[a].type === 0) {
             if(v === 27 || v === 28 || v === 1 || v === 0) {
@@ -106,4 +109,4 @@ const processTxs = (txs: Transaction[]) => {
     return res;
 }
 
-startSearch(18639300, 18661209);
+startSearch(18654109, 18661209);
